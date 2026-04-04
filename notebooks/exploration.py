@@ -33,6 +33,14 @@ for diag, count in diag_counts.items():
     pct = count / len(df) * 100
     print(f"{diag:12s} : {count:3d} patients ({pct:.1f}%)")
 
+# ===== REPARTITION PAR SEXE ET DIAGNOSTIC =====
+print(f"\n--- Repartition par sexe et diagnostic ---")
+sex_diag_counts = df.groupby(["sexe", "diagnostic"]).size()
+print("SEXE       | DIAGNOSTIC      | NOMBRE")
+print("-" * 40)
+for (sexe, diagnostic), count in sex_diag_counts.items():
+    print(f"{sexe:10s} | {diagnostic:15s} | {count} patients")
+
 # ===== REPARTITION PAR REGION =====
 print(f"\n--- Repartition par region (top 5) ---")
 region_counts = df["region"].value_counts().head(5)
@@ -49,4 +57,3 @@ print(f"\n{'=' * 50}")
 print("Exploration terminee !")
 print("Prochain lab : entrainer un modele ML")
 print(f"{'=' * 50}")
-
