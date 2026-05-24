@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 import joblib
 import numpy as np
-
+from fastapi.middleware.cors import CORSMiddleware
 # --- Schemas Pydantic ---
 
 class PatientInput(BaseModel):
@@ -33,6 +33,15 @@ app = FastAPI(
     version="0.2.0"
 )
 
+# Autoriser les requetes depuis le frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],   # En dev : tout accepter
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # --- Chargement du modele (une seule fois) ---
 
 print("Chargement du modele...")
@@ -47,6 +56,15 @@ print(f"Modele charge : {list(model.classes_)}")
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "SenSante API is running"}
+
+@app.get("/model-info")
+def model_info():
+    return {
+        "model_type": type(model).__name__,
+        "n_estimators": model.n_estimators,
+        "classes": list(model.classes_),
+        "n_features": model.n_features_in_
+    }
 
 @app.post("/predict", response_model=DiagnosticOutput)
 def predict(patient: PatientInput):
@@ -93,9 +111,9 @@ def predict(patient: PatientInput):
     )
 
     messages = {
-        "palu": "Suspicion de paludisme. Consultez rapidement.",
+        "paludisme": "Suspicion de paludisme. Consultez rapidement.",
         "grippe": "Suspicion de grippe. Repos et hydratation.",
-        "typh": "Suspicion de typhoide. Consultation necessaire.",
+        "typhoide": "Suspicion de typhoide. Consultation necessaire.",
         "sain": "Pas de pathologie detectee."
     }
 
